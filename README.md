@@ -1,23 +1,32 @@
-# 🤖 DEX 
+# 🤖 Dex Assistant Bot
 
-Welcome to **DEX**, a custom python chatbot built by a 12-year-old developer! This bot uses Python dictionaries to chat and includes fun interactive features.
+Welcome to **Dex**, an interactive command-line virtual assistant and chatbot built entirely using Python. Dex is designed to handle daily utility workflows, run interactive terminal games, and chat dynamically based on user input keywords. 
+
+This project serves as the core foundation before transitioning into a web-accessible Flask API and integrating machine learning capabilities.
+
+---
 
 ## 🚀 Features
 
-Our bot is packed with awesome tools:
-*   💬 **Smart Chat:** Uses a Python dictionary database to respond to your moods.
-*   🪙 **Coin Flipper:** Type `Flip` to flip a digital coin for Heads or Tails.
-*   🎲 **Dice Roller:** Type `Roll` to roll a 6-sided die.
-*   ✊✋✌️ **Rock, Paper, Scissors:** Type `Rps` to play a classic hand game against the AI.
+### 🛠️ Utilities & Tools
+* **Date & Time Tracking (`Time`)**: Fetches and formats local time and standard calendar dates.
+* **Math Calculator (`Calc`)**: Handles basic operations (`+`, `-`, `*`, `/`) with safety checks for zero-division errors.
+* **Task Manager (`Todo`)**: An interactive terminal array allowing you to view, add, and remove active tasks dynamically.
+* **Countdown Timer (`Timer`)**: Pauses the system execution for a specified length of seconds to issue structural alerts.
+* **System Diagnostic (`System`)**: Returns localized metadata including current engine version and dictionary status.
 
-## 🛠️ Built With
+### 🎮 Built-in Games & Personalization
+* **Rock, Paper, Scissors (`Rps`)**: Core conditional game logic engine matching player input against a randomized computer generator.
+* **Dice Roller (`Roll`) & Coin Flipper (`Flip`)**: Simple, fast random integer and structural choices generators.
+* **Identity Customizer (`Name`)**: Temporarily adjusts internal memory state properties to address the active user by their custom handle.
 
-*   **Python 3**
-*   **VScode** (for testing)
-*   `random` library (for the gaming logic)
+---
 
-## 📖 How to Use
+## 🛠️ Installation & Setup
 
-1. Copy the code from `bot.py`.
-2. Paste it into a Python editor like Google Colab or Replit.
-3. Click **Run** and start typing commands like `Hello`, `Flip`, or `Rps`!
+1. Make sure you have **Python 3.x** installed on your machine.
+2. Download or copy the script file (e.g., `dex.py`).
+3. Open your terminal or command prompt, navigate to the folder, and run:
+
+```bash
+python dex.py
