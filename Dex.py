@@ -1,4 +1,5 @@
 from datetime import datetime
+import math
 import random
 import time
 
@@ -37,7 +38,7 @@ while True:
     elif user_input == "Help":
         print("\n--- 🛠️ Utility Commands ---")
         print("💡 'Time'   - Show current date and time")
-        print("💡 'Calc'   - Open the math calculator")
+        print("💡 'Calc'   - Open the ADVANCED math calculator")
         print("💡 'Todo'   - Manage your daily task list")
         print("💡 'Timer'  - Set a quick countdown alert")
         print("💡 'System' - View bot technical details")
@@ -48,7 +49,7 @@ while True:
         print("💡 'Exit'   - Close the bot")
         print("-" * 30)
 
-    # ⏰ FEATURE 1: DATE & TIME
+    # ⏰ DATE & TIME
     elif user_input == "Time":
         now = datetime.now()
         current_time = now.strftime("%I:%M %p")
@@ -57,31 +58,59 @@ while True:
         print(f"Dex: ⏰ The current time is {current_time}")
         print("-" * 30)
 
-    # 🧮 FEATURE 2: CALCULATOR
+    # 🧮 FEATURE UPGRADE: ADVANCED CALCULATOR
     elif user_input == "Calc":
-        print("Dex: Math mode activated. Enter two numbers and an operator.")
+        print("\n--- 📊 Dex Advanced Calculator ---")
+        print("Supported Operators:")
+        print("  +  (Add)         -  (Subtract)    *  (Multiply)    /  (Divide)")
+        print("  ^  (Exponent)    %  (Remainder)   pct(Percentage)")
+        print("  sqrt (Square Root)                abs (Absolute Value)")
+        print("---------------------------------")
+        
         try:
-            num1 = float(input("Enter first number: "))
-            op = input("Enter operator (+, -, *, /): ").strip()
-            num2 = float(input("Enter second number: "))
+            op = input("Choose your operator: ").strip().lower()
             
-            if op == "+":
-                result = num1 + num2
-            elif op == "-":
-                result = num1 - num2
-            elif op == "*":
-                result = num1 * num2
-            elif op == "/":
-                result = num1 / num2 if num2 != 0 else "Error (Cannot divide by zero!)"
-            else:
-                result = "Invalid Operator"
+            # Group 1: Operations that only need ONE number
+            if op in ["sqrt", "abs"]:
+                num = float(input("Enter the number: "))
+                if op == "sqrt":
+                    if num >= 0:
+                        result = math.sqrt(num)
+                    else:
+                        result = "Error (Cannot square root a negative number!)"
+                elif op == "abs":
+                    result = abs(num)
+                    
+            # Group 2: Operations that need TWO numbers
+            elif op in ["+", "-", "*", "/", "^", "%", "pct"]:
+                num1 = float(input("Enter first number: "))
+                num2 = float(input("Enter second number: "))
                 
-            print(f"Dex: 📊 Result: {result}")
+                if op == "+":
+                    result = num1 + num2
+                elif op == "-":
+                    result = num1 - num2
+                elif op == "*":
+                    result = num1 * num2
+                elif op == "/":
+                    result = num1 / num2 if num2 != 0 else "Error (Cannot divide by zero!)"
+                elif op == "^":
+                    result = num1 ** num2  # ** is the power operator in Python
+                elif op == "%":
+                    result = num1 % num2 if num2 != 0 else "Error (Cannot divide by zero!)"
+                elif op == "pct":
+                    # Calculates: What is num1% of num2? (e.g., 20 pct 150 = 30)
+                    result = (num1 / 100) * num2
+            else:
+                result = "Invalid Operator Selected!"
+                
+            print(f"Dex: 📝 Result = {result}")
+            
         except ValueError:
             print("Dex: ⚠️ Please enter valid numbers!")
         print("-" * 30)
 
-    # 📝 FEATURE 3: TODO LIST
+    # 📝 TODO LIST
     elif user_input == "Todo":
         print("\n--- 📝 Your Todo List ---")
         if not todo_list:
@@ -106,7 +135,7 @@ while True:
                 print("Dex: ⚠️ Invalid task number.")
         print("-" * 30)
 
-    # ⏳ FEATURE 4: TIMER
+    # ⏳ TIMER
     elif user_input == "Timer":
         try:
             seconds = int(input("How many seconds should I count down? "))
@@ -117,7 +146,7 @@ while True:
             print("Dex: ⚠️ Please enter a whole number of seconds.")
         print("-" * 30)
 
-    # ⚙️ FEATURE 5: SYSTEM INFO
+    # ⚙️ SYSTEM INFO
     elif user_input == "System":
         print(f"Dex: 🏷️ Bot Name: Dex")
         print(f"Dex: 🚀 Version: {VERSION}")
