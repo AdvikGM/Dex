@@ -1,32 +1,36 @@
-# 🤖 Dex Assistant Bot
+# 🤖 Dex Web Assistant
 
-Welcome to **Dex**, an interactive command-line virtual assistant and chatbot built entirely using Python. Dex is designed to handle daily utility workflows, run interactive terminal games, and chat dynamically based on user input keywords. 
-
-This project serves as the core foundation before transitioning into a web-accessible Flask API and integrating machine learning capabilities.
+Dex is a responsive, full-stack personal assistant bot built using Python, Flask, and an interactive frontend interface inspired by Google Gemini. The application features a modular architecture, a programmatic conversational API routing engine, and automated SQLite3 conversation logging.
 
 ---
 
-## 🚀 Features
+## 🏗️ Project Architecture
 
-### 🛠️ Utilities & Tools
-* **Date & Time Tracking (`Time`)**: Fetches and formats local time and standard calendar dates.
-* **Math Calculator (`Calc`)**: Handles basic operations (`+`, `-`, `*`, `/`) with safety checks for zero-division errors.
-* **Task Manager (`Todo`)**: An interactive terminal array allowing you to view, add, and remove active tasks dynamically.
-* **Countdown Timer (`Timer`)**: Pauses the system execution for a specified length of seconds to issue structural alerts.
-* **System Diagnostic (`System`)**: Returns localized metadata including current engine version and dictionary status.
+The project has been refactored into a modular **Model-View-Controller (MVC)** inspired layout to separate the interface view layer from the backend operational logic layers:
 
-### 🎮 Built-in Games & Personalization
-* **Rock, Paper, Scissors (`Rps`)**: Core conditional game logic engine matching player input against a randomized computer generator.
-* **Dice Roller (`Roll`) & Coin Flipper (`Flip`)**: Simple, fast random integer and structural choices generators.
-* **Identity Customizer (`Name`)**: Temporarily adjusts internal memory state properties to address the active user by their custom handle.
+* **View Layer (`templates/index.html`):** Responsive centered UI web interface with dynamic asynchronous data transaction hooks.
+* **Sandbox Engine (`dex.py`):** Standalone console bot environment used for rapid script execution and localized testing.
+* **Controller Layer (`dex_api.py`):** Holds core configuration maps, intent dictionaries, and conversational data routing logic rules.
+* **Application Entrypoint (`run.py`):** Single-point operational trigger used to boot and monitor the local Flask server framework.
+* **Model Layer (`site.db`):** Relational database storage engine running background queries to cleanly capture transaction histories.
 
 ---
 
-## 🛠️ Installation & Setup
+## 🛠️ Features & Command Routing
 
-1. Make sure you have **Python 3.x** installed on your machine.
-2. Download or copy the script file (e.g., `dex.py`).
-3. Open your terminal or command prompt, navigate to the folder, and run:
+Dex processes user statements dynamically through an optimized class string matcher. You can interact with the bot using the following standard structural hooks via the central web screen input bar:
 
-```bash
-python dex.py
+* **`Time`** - Returns the localized date and a live, formatted clock time string.
+* **`System`** - Displays the engine specifications, current version, and database connection confirmation statuses.
+* **`Flip`** - Flips a virtual coin and returns randomized `HEADS!` or `TAILS!` outcomes.
+* **`Roll`** - Generates a secure, randomized simulated 6-sided die roll outcome.
+* **Greetings (`Hello`, `Hi`, etc.)** - Triggers contextually appropriate answers pulled from a built-in intent data dictionary map.
+
+---
+
+## 🚀 Installation & Local Execution
+
+### 1. Project Directory Access
+Open your Windows Command Prompt terminal and migrate straight down into your local programming working workspace path:
+```cmd
+cd C:\Users\mahesh\Documents\Programming\Dex
