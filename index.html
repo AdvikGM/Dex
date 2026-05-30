@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dex Assistant</title>
+    <style>
+        /* Centers everything on a light gray background */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background-color: #f8f9fa; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* The main centered chat box */
+        .chat-wrapper { 
+            background: #ffffff; 
+            width: 100%;
+            max-width: 600px;
+            height: 80vh;
+            border-radius: 24px; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.05); 
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+        }
+
+        .chat-header {
+            padding: 20px 24px;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1f1f1f;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .chat-box { 
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 80%;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        /* User messages float right */
+        .user-msg {
+            background-color: #f3f3f3;
+            color: #1f1f1f;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Dex messages float left */
+        .dex-msg {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .input-container { 
+            padding: 20px 24px;
+        }
+
+        /* Gemini-style rounded pill input bar */
+        .gemini-input-bar {
+            display: flex;
+            align-items: center;
+            background: #f0f4f9;
+            border-radius: 30px;
+            padding: 6px 14px;
+        }
+
+        .gemini-input-bar input { 
+            flex: 1; 
+            padding: 10px 12px; 
+            border: none; 
+            background: transparent;
+            outline: none;
+            font-size: 1em;
+            color: #1f1f1f;
+        }
+
+        .gemini-input-bar button { 
+            background: none;
+            border: none;
+            color: #1a73e8;
+            padding: 8px 16px;
+            cursor: pointer; 
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-wrapper">
+        <div class="chat-header">🤖 Dex Assistant</div>
+        
+        <div class="chat-box" id="chatBox">
+            <div class="message dex-msg">Hello! I'm completely redesigned. Ask me 'Time', 'Flip', 'Roll', or 'System'!</div>
+        </div>
+
+        <div class="input-container">
+            <div class="gemini-input-bar">
+                <input type="text" id="userText" placeholder="Ask Dex something..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendToDex()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendToDex();
+            }
+        }
+
+        function sendToDex() {
+            var inputField = document.getElementById("userText");
+            var text = inputField.value.trim();
+            if (!text) return;
+
+            var chatBox = document.getElementById("chatBox");
+            chatBox.innerHTML += `<div class="message user-msg">${text}</div>`;
+            inputField.value = ""; 
+            chatBox.scrollTop = chatBox.scrollHeight; 
+
+            fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ "message": text })
+            })
+            .then(response => response.json())
+            .then(data => {
+                chatBox.innerHTML += `<div class="message dex-msg">${data.dex_says}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight; 
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                chatBox.innerHTML += `<div class="message dex-msg" style="color: red;">Error connecting to server!</div>`;
+            });
+        }
+    </script>
+
+</body>
+</html>
