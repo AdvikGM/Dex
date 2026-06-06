@@ -1,7 +1,8 @@
-# Import the 'app' server instance directly from your dex_api file
-from dex_api import app
+from app import app, db
 
 if __name__ == '__main__':
-    # Fire up the live web server thread execution loop
-    print("🚀 Booting up the Dex Web Application Server via run.py...")
-    app.run(debug=True)
+    with app.app_context():
+        db.create_all()
+        
+    print("🚀 Booting up the professional Modular Dex Core Engine...")
+    app.run(debug=True, port=5000)
