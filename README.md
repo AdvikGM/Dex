@@ -1,36 +1,36 @@
-# 🤖 Dex Web Assistant
+# 🤖 Project Dex: Advanced AI Command Matrix
 
-Dex is a responsive, full-stack personal assistant bot built using Python, Flask, and an interactive frontend interface inspired by Google Gemini. The application features a modular architecture, a programmatic conversational API routing engine, and automated SQLite3 conversation logging.
+Welcome to **Project Dex**, a premium, full-stack AI personal assistant web application featuring a sleek, tech-dashboard interface, automated local routing modules, and a cloud-integrated neural network brain.
 
----
-
-## 🏗️ Project Architecture
-
-The project has been refactored into a modular **Model-View-Controller (MVC)** inspired layout to separate the interface view layer from the backend operational logic layers:
-
-* **View Layer (`templates/index.html`):** Responsive centered UI web interface with dynamic asynchronous data transaction hooks.
-* **Sandbox Engine (`dex.py`):** Standalone console bot environment used for rapid script execution and localized testing.
-* **Controller Layer (`dex_api.py`):** Holds core configuration maps, intent dictionaries, and conversational data routing logic rules.
-* **Application Entrypoint (`run.py`):** Single-point operational trigger used to boot and monitor the local Flask server framework.
-* **Model Layer (`site.db`):** Relational database storage engine running background queries to cleanly capture transaction histories.
+Designed and engineered by **Advik** (Lead Developer).
 
 ---
 
-## 🛠️ Features & Command Routing
+## 🚀 Key Architectural Features
 
-Dex processes user statements dynamically through an optimized class string matcher. You can interact with the bot using the following standard structural hooks via the central web screen input bar:
-
-* **`Time`** - Returns the localized date and a live, formatted clock time string.
-* **`System`** - Displays the engine specifications, current version, and database connection confirmation statuses.
-* **`Flip`** - Flips a virtual coin and returns randomized `HEADS!` or `TAILS!` outcomes.
-* **`Roll`** - Generates a secure, randomized simulated 6-sided die roll outcome.
-* **Greetings (`Hello`, `Hi`, etc.)** - Triggers contextually appropriate answers pulled from a built-in intent data dictionary map.
+* **🧠 Gemini 2.5 Flash Brain:** Natively integrated via the official Google GenAI SDK to handle conversational context, complex queries, and intelligent fallbacks.
+* **⏱️ Precision Time Sync:** Uses specialized python `zoneinfo` databases (`tzdata`) to enforce accurate India Standard Time (IST) sync across all visual components.
+* **📋 Volatile Memory Todo Matrix:** An active, array-backed task engine allowing real-time appending, retrieval, and status tracking via command inputs.
+* **🧮 Built-in Expression Compiler:** Uses math standard libraries to securely compute algebraic algorithms and trigonometric expressions right from the input dock.
+* **🗄️ SQLite3 Data Logging:** Asynchronously saves every interaction packet to a secure local structured database engine (`site.db`).
+* **🚨 Resilient Link Handlers:** Features isolated error view mapping controllers (`templates/errors/404.html`) to cleanly intercept invalid system paths without server failure.
 
 ---
 
-## 🚀 Installation & Local Execution
+## 🎨 Tech Stack & Framework Infrastructure
 
-### 1. Project Directory Access
-Open your Windows Command Prompt terminal and migrate straight down into your local programming working workspace path:
-```cmd
-cd C:\Users\mahesh\Documents\Programming\Dex
+* **Backend Core:** Python 3 + Flask Web Framework
+* **AI Integration:** Google GenAI Library Client
+* **Database Engine:** SQLite3 Relational Storage
+* **Frontend UI Layout:** Premium Responsive Dark-Mode Glassmorphism Dashboard (HTML5 / Modern Vanilla CSS3 / JavaScript)
+
+---
+
+## 🛠️ Local Installation & Launch Sequence
+
+To clone and run this application cluster locally on your machine, follow these operational commands:
+
+### 1. Initialize Your Environment Keys
+Create a `.env` file in the main folder root directory and map your secure access token credentials:
+```text
+GEMINI_API_KEY=your_actual_private_google_api_key_here
