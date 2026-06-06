@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dex Core Neural Network</title>
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --panel-dark: #161b22;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #7ee787;
+            --user-bubble: #21262d;
+            --dex-bubble: #1f293d;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; 
+            background-color: var(--bg-dark); 
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            width: 90vw;
+            max-width: 1100px;
+            height: 85vh;
+            background: var(--panel-dark);
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        /* SIDEBAR PANEL */
+        .sidebar {
+            width: 30%;
+            background: rgba(22, 27, 34, 0.7);
+            border-right: 1px solid var(--border-color);
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .developer-badge {
+            background: linear-gradient(135deg, #1f293d, #0d1117);
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .developer-badge h3 { margin: 0 0 6px 0; color: var(--accent-blue); font-size: 1.1em; }
+        .developer-badge p { margin: 0; font-size: 0.85em; color: var(--text-muted); }
+
+        .system-status {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            padding: 8px 12px;
+            background: #21262d;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--accent-green);
+        }
+
+        /* MAIN CHAT FRAMEWORK */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0d1117;
+        }
+
+        .chat-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-header h2 { margin: 0; font-size: 1.3em; letter-spacing: 0.5px; }
+
+        .chat-box { 
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            padding: 14px 20px;
+            border-radius: 16px;
+            max-width: 75%;
+            font-size: 0.95em;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .user-msg {
+            background-color: var(--user-bubble);
+            color: #f0f6fc;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            border: 1px solid #30363d;
+        }
+
+        .dex-msg {
+            background-color: var(--dex-bubble);
+            color: #f0f6fc;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(88, 166, 255, 0.2);
+        }
+
+        /* CLICKABLE CHIPS */
+        .skills-container {
+            padding: 0 24px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .skill-chip {
+            background: #21262d;
+            border: 1px solid var(--border-color);
+            color: var(--accent-blue);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .skill-chip:hover {
+            background: var(--accent-blue);
+            color: #0d1117;
+            transform: translateY(-2px);
+        }
+
+        /* INPUT CONTROL BAR */
+        .input-container { 
+            padding: 20px 24px;
+        }
+
+        .input-bar-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--panel-dark);
+            border-radius: 14px;
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .input-bar-wrapper input { 
+            flex: 1; 
+            padding: 12px; 
+            border: none; 
+            background: transparent;
+            outline: none;
+            font-size: 0.95em;
+            color: var(--text-main);
+        }
+
+        .input-bar-wrapper button { 
+            background: var(--accent-blue);
+            border: none;
+            color: #0d1117;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer; 
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .input-bar-wrapper button:hover { opacity: 0.9; }
+
+        code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ff7b72;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="developer-badge">
+                <h3>PROJECT DEX</h3>
+                <p>Lead Dev: Advik</p>
+                <p>Status: AI Powered Brain</p>
+            </div>
+
+            <div class="system-status">
+                <div class="status-item">
+                    <span>Main Core Engine</span>
+                    <span>Online <span class="status-dot"></span></span>
+                </div>
+                <div class="status-item">
+                    <span>AI Module</span>
+                    <span style="color: var(--accent-blue);">Gemini 2.5 Flash</span>
+                </div>
+                <div class="status-item">
+                    <span>Database Node</span>
+                    <span>SQLite3 Active</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: auto; font-size: 0.75em; color: var(--text-muted); text-align: center;">
+                Built for deep system optimization
+            </div>
+        </div>
+
+        <div class="chat-area">
+            <div class="chat-header">
+                <h2>🤖 Operational Command Matrix</h2>
+            </div>
+            
+            <div class="chat-box" id="chatBox">
+                <div class="message dex-msg">⚡ <b>System Initialized.</b> I am completely sync'd up with your updated backend file. Use the interface or click any structural shortcut badge down below to pilot my sub-routines!</div>
+            </div>
+
+            <div class="skills-container">
+                <div class="skill-chip" onclick="quickCommand('Help')">🛠️ Help Menu</div>
+                <div class="skill-chip" onclick="quickCommand('Time')">📅 Check Time</div>
+                <div class="skill-chip" onclick="quickCommand('Tasks')">📋 View Tasks</div>
+                <div class="skill-chip" onclick="quickCommand('System')">⚙️ System Spec</div>
+                <div class="skill-chip" onclick="quickCommand('Flip')">🪙 Flip Coin</div>
+                <div class="skill-chip" onclick="quickCommand('Roll')">🎲 Roll Die</div>
+            </div>
+
+            <div class="input-container">
+                <div class="input-bar-wrapper">
+                    <input type="text" id="userText" placeholder="Dispatch instructions or chat natively..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendToDex()">Execute</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendToDex();
+            }
+        }
+
+        function quickCommand(cmdText) {
+            document.getElementById("userText").value = cmdText;
+            sendToDex();
+        }
+
+        function sendToDex() {
+            var inputField = document.getElementById("userText");
+            var text = inputField.value.trim();
+            if (!text) return;
+
+            var chatBox = document.getElementById("chatBox");
+            chatBox.innerHTML += `<div class="message user-msg">${text}</div>`;
+            inputField.value = ""; 
+            chatBox.scrollTop = chatBox.scrollHeight; 
+
+            fetch('http://127.0.0.1:5000/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ "message": text })
+            })
+            .then(response => response.json())
+            .then(data => {
+                chatBox.innerHTML += `<div class="message dex-msg">${data.dex_says}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight; 
+            })
+            .catch(error => {
+                console.error('Network Error:', error);
+                chatBox.innerHTML += `<div class="message dex-msg" style="color: #ff7b72; font-weight: bold; border-color: #ff7b72;">⚠️ Critical Packet Connection Loss! Run run.py terminal loop.</div>`;
+            });
+        }
+    </script>
+
+</body>
+</html>
