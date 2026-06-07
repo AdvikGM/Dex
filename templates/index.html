@@ -86,7 +86,7 @@
             box-shadow: 0 0 8px var(--accent-green);
         }
 
-        /* 💾 SIDEBAR LOG STYLING */
+        /* 💾 FEATURE 2: SIDEBAR LOG CHANNELS FEED */
         .history-feed-title {
             font-size: 0.85em;
             font-weight: 700;
@@ -117,7 +117,7 @@
         .feed-card span { color: var(--text-main); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 75%; }
         .feed-card small { color: var(--text-muted); font-family: monospace; }
 
-        /* CHAT INTERFACE */
+        /* MAIN CHAT WINDOW */
         .chat-area {
             flex: 1;
             display: flex;
@@ -169,7 +169,7 @@
             border: 1px solid rgba(88, 166, 255, 0.2);
         }
 
-        /* COMMAND CHIPS */
+        /* QUICK COMMAND CHIPS */
         .skills-container {
             padding: 0 24px;
             display: flex;
@@ -194,7 +194,7 @@
             transform: translateY(-2px);
         }
 
-        /* CONTROL FOOTER */
+        /* FOOTER CONTROLS */
         .input-container { 
             padding: 20px 24px;
         }
@@ -257,7 +257,7 @@
                 </div>
                 <div class="status-item">
                     <span>AI Module</span>
-                    <span style="color: var(--accent-blue);">Gemini 2.0 Flash</span>
+                    <span style="color: var(--accent-blue);">Gemini 2.5 Flash 8B</span>
                 </div>
                 <div class="status-item">
                     <span>Database Node</span>
@@ -281,7 +281,7 @@
             </div>
             
             <div class="chat-box" id="chatBox">
-                <div class="message dex-msg">⚡ <b>System Initialized.</b> The multi-feature update bundle is compiled and running. Chat naturally to try out the long-term memory module!</div>
+                <div class="message dex-msg">⚡ <b>System Initialized.</b> The high-quota 2.5-flash-8b pipeline is online. Your live sidebar tracker and long-term memory logs are fully operational!</div>
             </div>
 
             <div class="skills-container">
@@ -314,7 +314,7 @@
             sendToDex();
         }
 
-        // 💾 ASYNCHRONOUS SIDEBAR HISTORY FETCHER
+        // 💾 FEATURE 2: ASYNCHRONOUS SIDEBAR FEED FETCHER
         function updateSidebarLogs() {
             fetch('/history')
             .then(response => response.json())
@@ -324,7 +324,7 @@
                     logBox.innerHTML = `<div class="feed-card" style="color: var(--text-muted);">Database empty</div>`;
                     return;
                 }
-                logBox.innerHTML = ""; // Wipe previous visual blocks
+                logBox.innerHTML = ""; 
                 data.history_feed.forEach(item => {
                     logBox.innerHTML += `
                         <div class="feed-card">
@@ -356,7 +356,7 @@
             .then(data => {
                 chatBox.innerHTML += `<div class="message dex-msg">${data.dex_says}</div>`;
                 chatBox.scrollTop = chatBox.scrollHeight; 
-                // Update the sidebar history logs automatically on every input event!
+                // Update the sidebar logs layout instantly
                 updateSidebarLogs();
             })
             .catch(error => {
