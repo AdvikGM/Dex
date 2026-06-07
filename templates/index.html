@@ -86,7 +86,7 @@
             box-shadow: 0 0 8px var(--accent-green);
         }
 
-        /* 💾 FEATURE 2: SIDEBAR LOG CHANNELS FEED */
+        /* 💾 SIDEBAR TRACKER FEED */
         .history-feed-title {
             font-size: 0.85em;
             font-weight: 700;
@@ -117,7 +117,7 @@
         .feed-card span { color: var(--text-main); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 75%; }
         .feed-card small { color: var(--text-muted); font-family: monospace; }
 
-        /* MAIN CHAT WINDOW */
+        /* CHAT BOX AREA */
         .chat-area {
             flex: 1;
             display: flex;
@@ -169,7 +169,7 @@
             border: 1px solid rgba(88, 166, 255, 0.2);
         }
 
-        /* QUICK COMMAND CHIPS */
+        /* CONTROL SHIFTERS */
         .skills-container {
             padding: 0 24px;
             display: flex;
@@ -194,7 +194,7 @@
             transform: translateY(-2px);
         }
 
-        /* FOOTER CONTROLS */
+        /* DOCK CONTROL MATRIX */
         .input-container { 
             padding: 20px 24px;
         }
@@ -257,7 +257,7 @@
                 </div>
                 <div class="status-item">
                     <span>AI Module</span>
-                    <span style="color: var(--accent-blue);">Gemini 1.5 Flash</span>
+                    <span style="color: var(--accent-blue);">Gemini 2.5 Flash</span>
                 </div>
                 <div class="status-item">
                     <span>Database Node</span>
@@ -281,7 +281,7 @@
             </div>
             
             <div class="chat-box" id="chatBox">
-                <div class="message dex-msg">⚡ <b>System Initialized.</b> The high-stability 1.5-flash pipeline is online. Your live sidebar tracker and long-term memory logs are fully operational!</div>
+                <div class="message dex-msg">⚡ <b>System Initialized.</b> Diagnostic bundle deployed. Type any phrase into the prompt engine to execute a cloud request query!</div>
             </div>
 
             <div class="skills-container">
@@ -314,7 +314,6 @@
             sendToDex();
         }
 
-        // 💾 FEATURE 2: ASYNCHRONOUS SIDEBAR FEED FETCHER
         function updateSidebarLogs() {
             fetch('/history')
             .then(response => response.json())
@@ -356,7 +355,6 @@
             .then(data => {
                 chatBox.innerHTML += `<div class="message dex-msg">${data.dex_says}</div>`;
                 chatBox.scrollTop = chatBox.scrollHeight; 
-                // Update the sidebar logs layout instantly
                 updateSidebarLogs();
             })
             .catch(error => {
