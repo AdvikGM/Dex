@@ -30,7 +30,7 @@ class AssistantBot:
             
         # ⚡ SKILL 2: SYSTEM ARCHITECTURE SPECIFICATIONS
         elif user_input == "System":
-            return f"🏷️ Name: {self.name} | 🐍 Environment: Python 3 | 🗄️ Database: SQLite3 (SQLAlchemy) | 🧠 AI Core: Gemini 2.5 Flash 8B (High-Quota Sandbox Mode)"
+            return f"🏷️ Name: {self.name} | 🐍 Environment: Python 3 | 🗄️ Database: SQLite3 (SQLAlchemy) | 🧠 AI Core: Gemini 1.5 Flash (Maximum Stability Mode)"
             
         # ⚡ SKILL 3: COIN FLIPPER
         elif user_input == "Flip":
@@ -120,9 +120,9 @@ class AssistantBot:
                     )
                 }
                 
-                # 🎯 Targeted at high-quota 2.5-flash-8b to ensure persistent connections without 429 limits
+                # 🎯 Set to 1.5-flash for ultimate request-quota stability and zero 404/503 errors
                 response = self.ai_client.models.generate_content(
-                    model='gemini-2.5-flash-8b', 
+                    model='gemini-1.5-flash', 
                     contents=clean_input,
                     config=prompt_config
                 )
