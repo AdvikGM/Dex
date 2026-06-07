@@ -120,7 +120,6 @@ class AssistantBot:
                     )
                 }
                 
-                # 🎯 Correct model string for the new GenAI SDK
                 response = self.ai_client.models.generate_content(
                     model='gemini-2.5-flash', 
                     contents=clean_input,
@@ -130,4 +129,7 @@ class AssistantBot:
                 
             except Exception as e:
                 print(f"⚠️ Neural Network Connection Glitch: {e}")
-                return "I lost sync with my central AI grid matrix, but
+                return "I lost sync with my central AI grid matrix, but my local routing framework is up! Try typing 'Help'."
+
+# Expose instance to routes
+dex_brain = AssistantBot("Dex")
