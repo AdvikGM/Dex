@@ -11,7 +11,7 @@ class AssistantBot:
     def __init__(self, name):
         self.name = name
         self.todo_list = []
-        # Automatically connects using the GEMINI_API_KEY from your root .env file
+        # Automatically pairs with the GEMINI_API_KEY inside your root .env file
         self.ai_client = genai.Client()
         
     def process_message(self, raw_input, history_context="No previous history available."):
@@ -19,7 +19,7 @@ class AssistantBot:
         if not clean_input:
             return "Please type a message!"
             
-        # Standardize phrasing format for main structural keyword routing
+        # Standardize phrasing format for routing structural command checks
         user_input = clean_input[0].upper() + clean_input[1:] if len(clean_input) > 0 else clean_input
 
         # ⚡ SKILL 1: LOCAL TIME ROUTE
@@ -30,7 +30,7 @@ class AssistantBot:
             
         # ⚡ SKILL 2: SYSTEM ARCHITECTURE SPECIFICATIONS
         elif user_input == "System":
-            return f"🏷️ Name: {self.name} | 🐍 Environment: Python 3 | 🗄️ Database: SQLite3 (SQLAlchemy) | 🧠 AI Core: Gemini 2.0 Flash (Traffic Bypass Mode)"
+            return f"🏷️ Name: {self.name} | 🐍 Environment: Python 3 | 🗄️ Database: SQLite3 (SQLAlchemy) | 🧠 AI Core: Gemini 2.5 Flash 8B (High-Quota Sandbox Mode)"
             
         # ⚡ SKILL 3: COIN FLIPPER
         elif user_input == "Flip":
@@ -58,7 +58,7 @@ class AssistantBot:
                 return f"✅ Added '{task_content}' to your todo list! Type 'Tasks' to view it."
             return "❌ Task description cannot be blank!"
 
-        # ⚡ SKILL 7: SMART TASK ERASER (Done Command)
+        # ⚡ SKILL 7: FEATURE 3 - INTERACTIVE TASK ERASER
         elif clean_input.lower().startswith("done "):
             try:
                 task_index = int(clean_input[5:].strip()) - 1
@@ -105,20 +105,24 @@ class AssistantBot:
                 "💡 <b>Flip</b> / <b>Roll</b> - Built-in randomizers"
             )
 
-        # 🧠 NATURAL LANGUAGE INTERCEPTOR VIA GEMINI 2.0 FLASH
+        # 🧠 FEATURE 1: NATURAL LANGUAGE INTERCEPTOR WITH LONG-TERM MEMORY CONTEXT
         else:
             try:
                 prompt_config = {
                     "system_instruction": (
                         f"You are Dex, an energetic personal assistant bot engineered by 12-year-old developer Advik. "
                         f"Keep responses concise, fun, and conversational. Use emojis frequently. If the user asks about "
-                        f"adding tasks or math, remind them they can use structural prefixes like 'Add [task]' or 'calc [math]'!"
+                        f"adding tasks or math, remind them they can use structural prefixes like 'Add [task]' or 'calc [math]'!\n\n"
+                        f"⚡ CRITICAL SYSTEM INSTRUCTION:\n"
+                        f"Below is the recent logged conversation history retrieved from your SQLite database. "
+                        f"Use this data context to remember facts the user shared with you in past messages:\n"
+                        f"=== DATABASE MEMORY MATRIX ===\n{history_context}\n============================="
                     )
                 }
                 
-                # 🎯 Routed to the 2.0 network tier to bypass the global 503 traffic spikes
+                # 🎯 Targeted at high-quota 2.5-flash-8b to ensure persistent connections without 429 limits
                 response = self.ai_client.models.generate_content(
-                    model='gemini-2.0-flash', 
+                    model='gemini-2.5-flash-8b', 
                     contents=clean_input,
                     config=prompt_config
                 )
@@ -128,5 +132,5 @@ class AssistantBot:
                 print(f"⚠️ Neural Network Connection Glitch: {e}")
                 return "I lost sync with my central AI grid matrix, but my local routing framework is up! Try typing 'Help'."
 
-# Expose the master class instance to your routes
+# Expose instance to routes
 dex_brain = AssistantBot("Dex")
