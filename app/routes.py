@@ -25,31 +25,32 @@ def configure_routes(app):
             return jsonify({"status": "ok"}), 200
             
         data = request.get_json() or {}
-        user_message = data.get("message", "")
+        user_message = data.get("message", "").strip()
+
+        # 🛡️ THE STARTUP SHIELD: If the incoming message is totally blank, stop immediately!
+        if not user_message:
+            return jsonify({"dex_says": "System Ready. Standing by for instructions... ⚡"})
 
         # 💾 FEATURE 1: COMPILE LONG-TERM AI DATABASE CONTEXT
         memory_string = ""
         try:
-            # Query the database for the last 5 chat entries
             past_logs = ChatHistory.query.order_by(ChatHistory.id.desc()).limit(5).all()
-            # Reverse them so they loop in correct chronological ordering
             for log in reversed(past_logs):
                 memory_string += f"User: {log.user_msg}\nDex: {log.bot_msg}\n"
         except Exception as db_err:
             print(f"⚠️ Memory Fetch Warning: {db_err}")
             memory_string = "No previous history logs accessible."
 
-        # Pass both the user message AND the compiled memory logs to our brain engine
+        # Pass context to engine
         bot_reply = dex_brain.process_message(user_message, history_context=memory_string)
 
-        # Securely log transactions into our SQLite database
-        if user_message.strip():
-            try:
-                new_log = ChatHistory(user_msg=user_message, bot_msg=bot_reply)
-                db.session.add(new_log)
-                db.session.commit()
-            except Exception as e:
-                print(f"🗄️ Database Write Error: {e}")
+        # Securely log transactions into database
+        try:
+            new_log = ChatHistory(user_msg=user_message, bot_msg=bot_reply)
+            db.session.add(new_log)
+            db.session.commit()
+        except Exception as e:
+            print(f"🗄️ Database Write Error: {e}")
 
         return jsonify({"dex_says": bot_reply})
 
@@ -57,13 +58,12 @@ def configure_routes(app):
     @app.route('/history', methods=['GET'])
     def get_history_feed():
         try:
-            # Retrieve the latest 4 chat entries to keep sidebar clean
             records = ChatHistory.query.order_by(ChatHistory.id.desc()).limit(4).all()
             feed_list = []
             for item in records:
                 feed_list.append({
                     "user": item.user_msg[:25] + "..." if len(item.user_msg) > 25 else item.user_msg,
-                    "time": item.timestamp.split(" ")[1][:5] # Extracts just the HH:MM segment from the timestamp
+                    "time": item.timestamp.split(" ")[1][:5]
                 })
             return jsonify({"history_feed": feed_list}), 200
         except Exception as e:
