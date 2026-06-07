@@ -32,7 +32,7 @@ def configure_routes(app):
         try:
             # Query the database for the last 5 chat entries
             past_logs = ChatHistory.query.order_by(ChatHistory.id.desc()).limit(5).all()
-            # Reverse them so they stream in correct chronological order
+            # Reverse them so they loop in correct chronological ordering
             for log in reversed(past_logs):
                 memory_string += f"User: {log.user_msg}\nDex: {log.bot_msg}\n"
         except Exception as db_err:
@@ -42,7 +42,7 @@ def configure_routes(app):
         # Pass both the user message AND the compiled memory logs to our brain engine
         bot_reply = dex_brain.process_message(user_message, history_context=memory_string)
 
-        # Securely log transaction packets into our SQLite database
+        # Securely log transactions into our SQLite database
         if user_message.strip():
             try:
                 new_log = ChatHistory(user_msg=user_message, bot_msg=bot_reply)
@@ -57,13 +57,13 @@ def configure_routes(app):
     @app.route('/history', methods=['GET'])
     def get_history_feed():
         try:
-            # Retrieve the latest 4 chat entries to prevent sidebar overcrowding
+            # Retrieve the latest 4 chat entries to keep sidebar clean
             records = ChatHistory.query.order_by(ChatHistory.id.desc()).limit(4).all()
             feed_list = []
             for item in records:
                 feed_list.append({
                     "user": item.user_msg[:25] + "..." if len(item.user_msg) > 25 else item.user_msg,
-                    "time": item.timestamp.split(" ")[1][:5] # Extracts just the HH:MM segment from the timestamp string
+                    "time": item.timestamp.split(" ")[1][:5] # Extracts just the HH:MM segment from the timestamp
                 })
             return jsonify({"history_feed": feed_list}), 200
         except Exception as e:
