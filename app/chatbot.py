@@ -30,7 +30,7 @@ class AssistantBot:
             
         # ⚡ SKILL 2: SYSTEM ARCHITECTURE SPECIFICATIONS
         elif user_input == "System":
-            return f"🏷️ Name: {self.name} | 🐍 Environment: Python 3 | 🗄️ Database: SQLite3 (SQLAlchemy) | 🧠 AI Core: Gemini 2.5 Flash (Production Mode)"
+            return f"🏷️ Name: {self.name} | 🐍 Environment: Python 3 | 🗄️ Database: SQLite3 (SQLAlchemy) | 🧠 AI Core: Gemini 2.5 Flash (Diagnostic Mode Active)"
             
         # ⚡ SKILL 3: COIN FLIPPER
         elif user_input == "Flip":
@@ -114,22 +114,4 @@ class AssistantBot:
                         f"Keep responses concise, fun, and conversational. Use emojis frequently. If the user asks about "
                         f"adding tasks or math, remind them they can use structural prefixes like 'Add [task]' or 'calc [math]'!\n\n"
                         f"⚡ CRITICAL SYSTEM INSTRUCTION:\n"
-                        f"Below is the recent logged conversation history retrieved from your SQLite database. "
-                        f"Use this data context to remember facts the user shared with you in past messages:\n"
-                        f"=== DATABASE MEMORY MATRIX ===\n{history_context}\n============================="
-                    )
-                }
-                
-                response = self.ai_client.models.generate_content(
-                    model='gemini-2.5-flash', 
-                    contents=clean_input,
-                    config=prompt_config
-                )
-                return response.text
-                
-            except Exception as e:
-                print(f"⚠️ Neural Network Connection Glitch: {e}")
-                return "I lost sync with my central AI grid matrix, but my local routing framework is up! Try typing 'Help'."
-
-# Expose instance to routes
-dex_brain = AssistantBot("Dex")
+                        f"Below is
