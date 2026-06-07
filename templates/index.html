@@ -48,7 +48,7 @@
             padding: 30px 24px;
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 20px;
         }
 
         .developer-badge {
@@ -64,7 +64,7 @@
         .system-status {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
         .status-item {
@@ -86,7 +86,38 @@
             box-shadow: 0 0 8px var(--accent-green);
         }
 
-        /* MAIN CHAT FRAMEWORK */
+        /* 💾 SIDEBAR LOG STYLING */
+        .history-feed-title {
+            font-size: 0.85em;
+            font-weight: 700;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 5px;
+        }
+
+        .history-feed-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .feed-card {
+            background: rgba(13, 17, 23, 0.6);
+            border: 1px solid var(--border-color);
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .feed-card span { color: var(--text-main); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 75%; }
+        .feed-card small { color: var(--text-muted); font-family: monospace; }
+
+        /* CHAT INTERFACE */
         .chat-area {
             flex: 1;
             display: flex;
@@ -138,7 +169,7 @@
             border: 1px solid rgba(88, 166, 255, 0.2);
         }
 
-        /* CLICKABLE CHIPS */
+        /* COMMAND CHIPS */
         .skills-container {
             padding: 0 24px;
             display: flex;
@@ -163,7 +194,7 @@
             transform: translateY(-2px);
         }
 
-        /* INPUT CONTROL BAR */
+        /* CONTROL FOOTER */
         .input-container { 
             padding: 20px 24px;
         }
@@ -209,14 +240,14 @@
         }
     </style>
 </head>
-<body>
+<body onload="updateSidebarLogs()">
 
     <div class="dashboard-container">
         <div class="sidebar">
             <div class="developer-badge">
                 <h3>PROJECT DEX</h3>
                 <p>Lead Dev: Advik</p>
-                <p>Status: AI Powered Brain</p>
+                <p>Status: Package Mode Active</p>
             </div>
 
             <div class="system-status">
@@ -226,12 +257,17 @@
                 </div>
                 <div class="status-item">
                     <span>AI Module</span>
-                    <span style="color: var(--accent-blue);">Gemini 2.5 Flash</span>
+                    <span style="color: var(--accent-blue);">Gemini 2.0 Flash</span>
                 </div>
                 <div class="status-item">
                     <span>Database Node</span>
                     <span>SQLite3 Active</span>
                 </div>
+            </div>
+            
+            <div class="history-feed-title">💾 Recent Packets Log</div>
+            <div class="history-feed-box" id="historyLog">
+                <div class="feed-card" style="color: var(--text-muted); font-style: italic;">Awaiting connection...</div>
             </div>
             
             <div style="margin-top: auto; font-size: 0.75em; color: var(--text-muted); text-align: center;">
@@ -245,7 +281,7 @@
             </div>
             
             <div class="chat-box" id="chatBox">
-                <div class="message dex-msg">⚡ <b>System Initialized.</b> I am completely sync'd up with your updated backend file. Use the interface or click any structural shortcut badge down below to pilot my sub-routines!</div>
+                <div class="message dex-msg">⚡ <b>System Initialized.</b> The multi-feature update bundle is compiled and running. Chat naturally to try out the long-term memory module!</div>
             </div>
 
             <div class="skills-container">
@@ -278,6 +314,29 @@
             sendToDex();
         }
 
+        // 💾 ASYNCHRONOUS SIDEBAR HISTORY FETCHER
+        function updateSidebarLogs() {
+            fetch('/history')
+            .then(response => response.json())
+            .then(data => {
+                var logBox = document.getElementById("historyLog");
+                if(!data.history_feed || data.history_feed.length === 0) {
+                    logBox.innerHTML = `<div class="feed-card" style="color: var(--text-muted);">Database empty</div>`;
+                    return;
+                }
+                logBox.innerHTML = ""; // Wipe previous visual blocks
+                data.history_feed.forEach(item => {
+                    logBox.innerHTML += `
+                        <div class="feed-card">
+                            <span>📩 ${item.user}</span>
+                            <small>${item.time}</small>
+                        </div>
+                    `;
+                });
+            })
+            .catch(err => console.error("History pipeline issue:", err));
+        }
+
         function sendToDex() {
             var inputField = document.getElementById("userText");
             var text = inputField.value.trim();
@@ -288,7 +347,7 @@
             inputField.value = ""; 
             chatBox.scrollTop = chatBox.scrollHeight; 
 
-            fetch('http://127.0.0.1:5000/ask', {
+            fetch('/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ "message": text })
@@ -297,6 +356,8 @@
             .then(data => {
                 chatBox.innerHTML += `<div class="message dex-msg">${data.dex_says}</div>`;
                 chatBox.scrollTop = chatBox.scrollHeight; 
+                // Update the sidebar history logs automatically on every input event!
+                updateSidebarLogs();
             })
             .catch(error => {
                 console.error('Network Error:', error);
