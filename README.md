@@ -1,36 +1,45 @@
-# 🤖 Project Dex: Advanced AI Command Matrix
+# Dex Core Neural Network 🧠🚀
 
-Welcome to **Project Dex**, a premium, full-stack AI personal assistant web application featuring a sleek, tech-dashboard interface, automated local routing modules, and a cloud-integrated neural network brain.
-
-Designed and engineered by **Advik** (Lead Developer).
+Dex is an energetic, high-speed personal assistant bot built on top of a professional Python Flask backend and a highly responsive, feature-rich web dashboard view. It features a self-healing dual-engine image pipeline, real-time user trait extraction, session thread management, and a global circuit breaker fail detector.
 
 ---
 
-## 🚀 Key Architectural Features
+## 🛠️ New Features (Since Last Release)
 
-* **🧠 Gemini 2.5 Flash Brain:** Natively integrated via the official Google GenAI SDK to handle conversational context, complex queries, and intelligent fallbacks.
-* **⏱️ Precision Time Sync:** Uses specialized python `zoneinfo` databases (`tzdata`) to enforce accurate India Standard Time (IST) sync across all visual components.
-* **📋 Volatile Memory Todo Matrix:** An active, array-backed task engine allowing real-time appending, retrieval, and status tracking via command inputs.
-* **🧮 Built-in Expression Compiler:** Uses math standard libraries to securely compute algebraic algorithms and trigonometric expressions right from the input dock.
-* **🗄️ SQLite3 Data Logging:** Asynchronously saves every interaction packet to a secure local structured database engine (`site.db`).
-* **🚨 Resilient Link Handlers:** Features isolated error view mapping controllers (`templates/errors/404.html`) to cleanly intercept invalid system paths without server failure.
+### 1. Multi-Threaded Saved Sessions
+The interface now supports dynamic contextual threads. Users can instantiate fresh session logs (`+ New Chat`) or jump back into historical interaction contexts directly from the sidebar without polluting current chat memories.
+
+### 2. Live Cognitive Fact Vault
+Dex features a dynamic trait extractor. The backend analyzes incoming user statements in real-time, pulling out permanent personal facts (hobbies, equipment models, or family connections) and saving them securely to an adaptive fact panel.
+
+### 3. Native Multi-Modal Attachments
+Equipped with a secure media attachment portal (`📎`). Users can feed real physical images straight into Dex's cognitive layer via local base64 encoding strings for high-fidelity scene analysis and detailed visual descriptions.
+
+### 4. Integrated Voice Grid Matrix
+Features a dual-channel speech engine:
+* **Input Layer (`🎙️`):** Built-in web speech recognition translates live voice commands into text fields automatically.
+* **Output Layer (`🔊`):** Optional speech synthesis text stripping vocalizes Dex's message replies aloud.
+
+### 5. Self-Healing Dual AI Image Engine
+The image generation framework (`draw [prompt]`) is completely detached from rigid SDK layers to prevent downtime bottlenecks. 
+* **Primary Route:** Connects to an unmetered, high-speed real-time generation array.
+* **Secondary Route:** If the primary engine returns a rate-limit block (`402 Payment Required`), the script instantly intercepts the response and re-maps the prompt parameters onto a completely independent backup cloud generation node.
+
+### 6. Global Circuit Breaker Pop-Up Detector
+A comprehensive safety net wraps the workspace core. If *any* background system fails—whether it is an image timeout, an internet disconnection, or a severe text model endpoint failure—the system completely suppresses broken chat bubbles from appearing on screen and instantly surfaces a clean browser modal:
+`Something Went Wrong (404)`
 
 ---
 
-## 🎨 Tech Stack & Framework Infrastructure
+## 🏗️ Project Architecture Layout
 
-* **Backend Core:** Python 3 + Flask Web Framework
-* **AI Integration:** Google GenAI Library Client
-* **Database Engine:** SQLite3 Relational Storage
-* **Frontend UI Layout:** Premium Responsive Dark-Mode Glassmorphism Dashboard (HTML5 / Modern Vanilla CSS3 / JavaScript)
-
----
-
-## 🛠️ Local Installation & Launch Sequence
-
-To clone and run this application cluster locally on your machine, follow these operational commands:
-
-### 1. Initialize Your Environment Keys
-Create a `.env` file in the main folder root directory and map your secure access token credentials:
 ```text
-GEMINI_API_KEY=your_actual_private_google_api_key_here
+Dex/
+├── app/
+│   ├── __init__.py       # App initializations
+│   ├── routes.py         # Flask routing layers
+│   └── chatbot.py        # Core Engine (Interceptors, Skills, Memory)
+├── templates/
+│   └── index.html        # Frontend Neural Network Dashboard View
+├── run.py                # App main entry execution point
+└── README.md             # Project documentation
