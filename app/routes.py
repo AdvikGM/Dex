@@ -1,5 +1,5 @@
 # app/routes.py
-# 🌐 FLASK ROUTE MANAGEMENT - LINKING REAL-TIME AI LANGUAGE SELECTION & WORKSPACE PERSISTENCE
+# 🌐 FLASK ROUTE MANAGEMENT - TRACKING SECURITY & MODEL CONFIGURATION SELECTIONS
 
 import os
 import json
@@ -8,7 +8,6 @@ from app.chatbot import dex_brain
 from app.models import UserProfile
 
 from menu.handler import load_user_settings, save_user_settings
-from menu.config import THEMES, LANGUAGES
 
 main_blueprint = Blueprint('main', __name__)
 
@@ -31,32 +30,40 @@ def save_users(users):
 
 @main_blueprint.route('/')
 def home_index():
-    return render_template('index.html')
-
-@main_blueprint.route('/settings/get', methods=['GET'])
-def fetch_runtime_settings():
-    return jsonify({
-        "current_config": load_user_settings(),
-        "available_themes": THEMES,
-        "available_languages": LANGUAGES
-    })
+    current_user = session.get("logged_in_user", None)
+    return render_template('index.html', username=current_user)
 
 @main_blueprint.route('/settings/update', methods=['POST'])
 def sync_runtime_settings():
+    # 🎯 UPGRADED: Accepts all 4 new parameters cleanly from frontend drop downs
     incoming_data = request.get_json() or {}
-    result = save_user_settings(incoming_data)
-    return jsonify(result)
+    
+    # Process current configurations and append new parameters cleanly to local files
+    current_config = load_user_settings()
+    current_config.update({
+        "data_retention": incoming_data.get("data_retention", "session"),
+        "crypto_level": incoming_data.get("crypto_level", "standard"),
+        "selected_theme": incoming_data.get("selected_theme", "dark"),
+        "response_tone": incoming_data.get("response_tone", "analytical"),
+        "selected_model": incoming_data.get("selected_model", "gemini-2.5-flash"),
+        "pipeline_priority": incoming_data.get("pipeline_priority", "balanced"),
+        "hardware_mic": incoming_data.get("hardware_mic", "default"),
+        "rendering_accel": incoming_data.get("rendering_accel", "gpu")
+    })
+    
+    result = save_user_settings(current_config)
+    return jsonify({"status": "success", "message": "All parameters captured.", "data": result})
 
 @main_blueprint.route('/ask', methods=['POST'])
 def process_ask_request():
     payload = request.get_json() or {}
     user_msg = payload.get("message", "")
     img_data = payload.get("image_data", None)
-    selected_model = payload.get("model", "gemini-2.5-flash")
     
-    # Read the user's preferred language directly out of config backend data storage
-    current_settings = load_user_settings()
-    target_lang_code = current_settings.get("selected_language", "en")
+    # Check the updated user configuration to determine the core intelligence model target
+    user_config = load_user_settings()
+    selected_model = user_config.get("selected_model", "gemini-2.5-flash")
+    target_lang_code = user_config.get("selected_language", "en")
 
     if user_msg.lower().startswith("generate image:"):
         image_prompt = user_msg[15:].strip()
@@ -67,7 +74,6 @@ def process_ask_request():
 
     dex_brain.extract_new_facts(user_msg)
     
-    # Pass the language code directly into the chatbot processing loop
     bot_reply = dex_brain.process_message(
         raw_input=user_msg,
         model_target=selected_model,
@@ -109,7 +115,7 @@ def web_login_user():
     if users[username]["password"] == hashed_entry:
         session["logged_in_user"] = username
         save_user_settings({"account_display_name": username, "auth_type": "local_account"})
-        return jsonify({"status": "success"})
+        return jsonify({"status": "success", "message": f"Welcome Operator {username}."})
     return jsonify({"status": "error", "message": "Incorrect parameters entry."}), 400
 
 @main_blueprint.route('/logout', methods=['POST'])
@@ -122,8 +128,6 @@ def web_logout_user():
 def fetch_session_history():
     is_authed = "logged_in_user" in session
     current_user = session.get("logged_in_user", "Guest Operator")
-    
-    # 🎯 FIX: Pull facts directly out of the upgraded workspace dictionary structure
     active_facts = dex_brain.workspace_db.get("remembered_facts", [])
     
     return jsonify({
