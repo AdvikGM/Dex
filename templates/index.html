@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Multi-File Code Debugger</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <style>
+        :root {
+            --bg-body: #0d0f14;
+            --panel-bg: #141720;
+            --border: #232838;
+            --text-main: #e2e8f0;
+            --text-dim: #798399;
+            --accent-red: #ef4444;
+            --accent-blue: #0284c7;
+            --accent-green: #10b981;
+            --tab-active: #1a1e2b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', monospace, system-ui; }
+        body { background: var(--bg-body); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* Header */
+        header {
+            height: 46px; background: #080a0e; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
+        }
+        .logo { font-weight: 800; font-size: 0.95rem; letter-spacing: 1px; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .logo span { color: var(--accent-blue); }
+        .lang-badge { font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; background: rgba(2, 132, 199, 0.15); color: #38bdf8; border: 1px solid rgba(2, 132, 199, 0.3); font-weight: 600; text-transform: uppercase; }
+
+        /* Settings Bar */
+        .settings-container { position: relative; }
+        .gear-btn { background: transparent; border: 1px solid var(--border); color: var(--text-dim); padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; display: flex; align-items: center; gap: 6px; }
+        .gear-btn:hover { color: #fff; border-color: var(--text-dim); }
+        .settings-menu {
+            display: none; position: absolute; right: 0; top: 38px; width: 280px;
+            background: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px;
+            padding: 12px; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            flex-direction: column; gap: 10px;
+        }
+        .settings-menu.open { display: flex; }
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; }
+
+        /* Multi-File Tab Bar */
+        .tabs-header {
+            height: 36px; background: #0b0d12; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; padding: 0 8px; gap: 4px; overflow-x: auto;
+        }
+        .file-tab {
+            background: #11141c; border: 1px solid var(--border); color: var(--text-dim);
+            padding: 4px 10px; border-radius: 5px 5px 0 0; font-size: 0.78rem; font-family: monospace;
+            cursor: pointer; display: flex; align-items: center; gap: 8px; user-select: none;
+        }
+        .file-tab.active { background: var(--tab-active); color: #fff; border-bottom: 1px solid var(--tab-active); font-weight: 600; }
+        .file-tab .close-tab { font-size: 0.75rem; color: #64748b; border-radius: 50%; padding: 0 3px; }
+        .file-tab .close-tab:hover { color: var(--accent-red); background: rgba(239, 68, 68, 0.2); }
+        .btn-add-tab { background: transparent; border: 1px dashed var(--border); color: var(--text-dim); padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .btn-add-tab:hover { color: #fff; border-color: var(--text-dim); }
+
+        /* Main Workspace Layout */
+        .workspace { flex: 1; display: flex; height: calc(100vh - 82px); width: 100vw; }
+
+        /* Left Column (Input & Review) */
+        .col-left { flex: 1.15; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+        
+        /* Top-Left Box: Input Code with Overlay Highlight */
+        .box-input { flex: 1.35; display: flex; flex-direction: column; border-bottom: 1px solid var(--border); }
+        .panel-header {
+            height: 36px; background: #0c0e14; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 12px;
+            font-size: 0.76rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase;
+        }
+        
+        .editor-container { flex: 1; display: flex; position: relative; overflow: hidden; }
+        .line-numbers { width: 44px; background: #090b10; color: #475569; font-family: 'Consolas', monospace; font-size: 0.88rem; padding: 12px 6px; text-align: right; user-select: none; line-height: 1.5; border-right: 1px solid var(--border); }
+        .editor-stage { flex: 1; position: relative; height: 100%; overflow: hidden; }
+        
+        .highlight-backdrop {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            padding: 12px; font-family: 'Consolas', monospace; font-size: 0.88rem;
+            line-height: 1.5; white-space: pre; pointer-events: none; overflow: hidden;
+        }
+        .code-textarea {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: transparent; border: none; color: #fff; font-family: 'Consolas', monospace;
+            font-size: 0.88rem; padding: 12px; outline: none; resize: none; line-height: 1.5;
+            white-space: pre; overflow: auto;
+        }
+
+        .line-error-bg {
+            background: rgba(239, 68, 68, 0.28);
+            border-left: 3px solid var(--accent-red);
+            display: block; margin-left: -12px; padding-left: 9px; width: calc(100% + 24px);
+        }
+        .line-normal { display: block; color: transparent; }
+
+        /* Bottom-Left Box: Debugger Review */
+        .box-review { flex: 1; display: flex; flex-direction: column; background: #11141c; overflow-y: auto; }
+        .review-content { padding: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; }
+        .error-tag { display: flex; align-items: flex-start; gap: 8px; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--accent-red); border-radius: 6px; padding: 6px 10px; font-size: 0.8rem; color: #fca5a5; }
+        .error-tag .line-pill { background: var(--accent-red); color: #fff; padding: 1px 6px; border-radius: 4px; font-weight: 700; font-size: 0.72rem; flex-shrink: 0; margin-top: 1px; }
+
+        /* Right Column (Fixed Code) */
+        .col-right { flex: 1; display: flex; flex-direction: column; background: #0d1017; position: relative; }
+        .fixed-code-container { flex: 1; overflow: auto; padding: 14px; position: relative; }
+        pre code { font-family: 'Consolas', monospace; font-size: 0.88rem; background: transparent !important; }
+
+        /* Buttons & Actions */
+        .btn-action { background: var(--accent-blue); border: none; color: #fff; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600; }
+        .btn-action:hover { opacity: 0.9; }
+        .btn-secondary { background: #1e293b; border: 1px solid var(--border); color: #cbd5e1; }
+        .btn-secondary:hover { background: #334155; color: #fff; }
+
+        /* Loading Spinner */
+        .loading-cover { display: none; position: absolute; inset: 0; background: rgba(13, 16, 23, 0.88); z-index: 10; align-items: center; justify-content: center; font-size: 0.85rem; color: var(--accent-blue); font-weight: 600; flex-direction: column; gap: 10px; }
+        .loading-cover.active { display: flex; }
+        .spinner { width: 28px; height: 28px; border: 3px solid rgba(2, 132, 199, 0.2); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            AI <span>DEBUGGER</span>
+            <span class="lang-badge" id="detectedLangBadge">Auto-Detect</span>
+        </div>
+        <div class="settings-container">
+            <button class="gear-btn" onclick="toggleSettings()">⚙ Settings Bar</button>
+            <div class="settings-menu" id="settingsMenu">
+                <div class="toggle-row">
+                    <label for="togInput">1. Do not show code</label>
+                    <input type="checkbox" id="togInput" onchange="applyToggles()">
+                </div>
+                <div class="toggle-row">
+                    <label for="togReview">2. Do not show debugger review</label>
+                    <input type="checkbox" id="togReview" onchange="applyToggles()">
+                </div>
+                <div class="toggle-row">
+                    <label for="togFixed">3. Do not show correct & fixed code</label>
+                    <input type="checkbox" id="togFixed" onchange="applyToggles()">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Multi-File Tabs -->
+    <div class="tabs-header" id="tabsHeader">
+        <!-- Rendered via JS -->
+        <button class="btn-add-tab" onclick="addNewTab()" title="Add New File Tab">+ New File</button>
+    </div>
+
+    <div class="workspace">
+        <!-- LEFT COLUMN -->
+        <div class="col-left" id="panelLeft">
+            
+            <!-- TOP-LEFT: INPUT CODE -->
+            <div class="box-input" id="boxInput">
+                <div class="panel-header">
+                    <span id="activeFileLabel">Source Code</span>
+                    <div style="display:flex; gap:6px;">
+                        <input type="file" id="fileInput" multiple style="display:none;" onchange="importFiles(event)">
+                        <button class="btn-action btn-secondary" onclick="document.getElementById('fileInput').click()">📁 Import Files</button>
+                        <button class="btn-action btn-secondary" onclick="clearActiveTab()">🗑 Clear</button>
+                        <button class="btn-action" style="background:var(--accent-green);" onclick="triggerDebug()">⚡ Debug Now</button>
+                    </div>
+                </div>
+                <div class="editor-container">
+                    <div class="line-numbers" id="lineNums">1</div>
+                    <div class="editor-stage">
+                        <div class="highlight-backdrop" id="highlightBackdrop"></div>
+                        <textarea id="codeInput" class="code-textarea" placeholder="Paste your code here or import files..." oninput="onCodeInput()" onscroll="syncScroll()"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTTOM-LEFT: DEBUGGER REVIEW -->
+            <div class="box-review" id="boxReview">
+                <div class="panel-header"><span>Debugger Diagnostic Review</span></div>
+                <div class="review-content" id="reviewContent">
+                    <div style="color:var(--text-dim);">Line-by-line issues and problem review will appear here once analyzed.</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: FIXED CODE -->
+        <div class="col-right" id="panelRight">
+            <div class="panel-header">
+                <span>Corrected & Fixed Code</span>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn-action btn-secondary" onclick="applyFixToEditor()">↩ Apply Fix to Tab</button>
+                    <button class="btn-action" onclick="copyFixedCode()">📋 Copy Code</button>
+                </div>
+            </div>
+            <div class="fixed-code-container">
+                <div class="loading-cover" id="loader">
+                    <div class="spinner"></div>
+                    <div>Analyzing Multi-Language AST...</div>
+                </div>
+                <pre><code class="language-python" id="fixedCodeOutput"># Corrected code will be generated here...</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab State Architecture
+        let files = [
+            {
+                name: "main.py",
+                code: "def calculate_average(scores):\n    total = 0\n    for s in scores:\n        total += s\n    return total / len(score) # typo\n\nprint(calculate_average([90, 80, 70]))",
+                errors: [],
+                review: "",
+                fixedCode: ""
+            }
+        ];
+        let activeTabIndex = 0;
+
+        function renderTabs() {
+            const container = document.getElementById('tabsHeader');
+            container.innerHTML = '';
+            
+            files.forEach((f, idx) => {
+                const tab = document.createElement('div');
+                tab.className = `file-tab ${idx === activeTabIndex ? 'active' : ''}`;
+                tab.onclick = () => switchTab(idx);
+                tab.innerHTML = `
+                    <span>${f.name}</span>
+                    ${files.length > 1 ? `<span class="close-tab" onclick="closeTab(event, ${idx})">✕</span>` : ''}
+                `;
+                container.appendChild(tab);
+            });
+
+            const addBtn = document.createElement('button');
+            addBtn.className = 'btn-add-tab';
+            addBtn.innerText = '+ New File';
+            addBtn.onclick = addNewTab;
+            container.appendChild(addBtn);
+
+            // Load active file into editor
+            const activeFile = files[activeTabIndex];
+            document.getElementById('codeInput').value = activeFile.code;
+            document.getElementById('activeFileLabel').innerText = `SOURCE CODE (${activeFile.name})`;
+            renderReviewAndFixed(activeFile);
+            onCodeInput();
+        }
+
+        function switchTab(idx) {
+            // Save current editor content before switching
+            files[activeTabIndex].code = document.getElementById('codeInput').value;
+            activeTabIndex = idx;
+            renderTabs();
+        }
+
+        function addNewTab() {
+            const ext = prompt("Enter new filename (e.g. app.js, index.html, solver.cpp, script.py):", `script_${files.length + 1}.py`);
+            if (!ext) return;
+            files.push({
+                name: ext.trim(),
+                code: "",
+                errors: [],
+                review: "",
+                fixedCode: ""
+            });
+            activeTabIndex = files.length - 1;
+            renderTabs();
+        }
+
+        function closeTab(e, idx) {
+            e.stopPropagation();
+            if (files.length <= 1) return;
+            files.splice(idx, 1);
+            if (activeTabIndex >= files.length) activeTabIndex = files.length - 1;
+            renderTabs();
+        }
+
+        function importFiles(e) {
+            const fileList = Array.from(e.target.files);
+            if (!fileList.length) return;
+
+            let loaded = 0;
+            fileList.forEach(file => {
+                const r = new FileReader();
+                r.onload = (event) => {
+                    files.push({
+                        name: file.name,
+                        code: event.target.result,
+                        errors: [],
+                        review: "",
+                        fixedCode: ""
+                    });
+                    loaded++;
+                    if (loaded === fileList.length) {
+                        activeTabIndex = files.length - 1;
+                        renderTabs();
+                        triggerDebug();
+                    }
+                };
+                r.readAsText(file);
+            });
+        }
+
+        function clearActiveTab() {
+            document.getElementById('codeInput').value = '';
+            files[activeTabIndex].code = '';
+            files[activeTabIndex].errors = [];
+            files[activeTabIndex].review = '';
+            files[activeTabIndex].fixedCode = '';
+            renderTabs();
+        }
+
+        function toggleSettings() {
+            document.getElementById('settingsMenu').classList.toggle('open');
+        }
+
+        function onCodeInput() {
+            files[activeTabIndex].code = document.getElementById('codeInput').value;
+            updateLineNums();
+            renderHighlights();
+        }
+
+        function syncScroll() {
+            const textarea = document.getElementById('codeInput');
+            const backdrop = document.getElementById('highlightBackdrop');
+            backdrop.scrollTop = textarea.scrollTop;
+            backdrop.scrollLeft = textarea.scrollLeft;
+        }
+
+        function updateLineNums() {
+            const lines = document.getElementById('codeInput').value.split('\n').length;
+            let nums = '';
+            for (let i = 1; i <= Math.max(lines, 12); i++) nums += i + '<br>';
+            document.getElementById('lineNums').innerHTML = nums;
+        }
+
+        function renderHighlights() {
+            const lines = document.getElementById('codeInput').value.split('\n');
+            const errorLines = files[activeTabIndex].errors || [];
+            let backdropHtml = '';
+
+            lines.forEach((lineText, idx) => {
+                const lineNum = idx + 1;
+                const isError = errorLines.includes(lineNum);
+                const safeText = lineText === '' ? ' ' : lineText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                
+                if (isError) {
+                    backdropHtml += `<span class="line-error-bg">${safeText}</span>`;
+                } else {
+                    backdropHtml += `<span class="line-normal">${safeText}</span>`;
+                }
+            });
+
+            document.getElementById('highlightBackdrop').innerHTML = backdropHtml;
+            syncScroll();
+        }
+
+        function applyToggles() {
+            const hideInput = document.getElementById('togInput').checked;
+            const hideReview = document.getElementById('togReview').checked;
+            const hideFixed = document.getElementById('togFixed').checked;
+
+            document.getElementById('boxInput').style.display = hideInput ? 'none' : 'flex';
+            document.getElementById('boxReview').style.display = hideReview ? 'none' : 'flex';
+            document.getElementById('panelRight').style.display = hideFixed ? 'none' : 'flex';
+        }
+
+        async function triggerDebug() {
+            const activeFile = files[activeTabIndex];
+            const code = document.getElementById('codeInput').value.trim();
+            if (!code) return;
+
+            const loader = document.getElementById('loader');
+            loader.classList.add('active');
+
+            try {
+                const res = await fetch('/debug', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ code: code, filename: activeFile.name })
+                });
+                const data = await res.json();
+
+                // Save results in file state
+                activeFile.errors = [];
+                let reviewHtml = '';
+
+                if (data.errors && data.errors.length > 0) {
+                    data.errors.forEach(err => {
+                        const parsedLine = parseInt(err.line);
+                        if (!isNaN(parsedLine)) activeFile.errors.push(parsedLine);
+                        reviewHtml += `
+                            <div class="error-tag">
+                                <span class="line-pill">Line ${err.line || '?'}</span>
+                                <span>${err.issue}</span>
+                            </div>
+                        `;
+                    });
+                }
+
+                if (data.review) {
+                    reviewHtml += `<div style="margin-top:8px; line-height:1.5; color:#cbd5e1;">${data.review}</div>`;
+                }
+                activeFile.review = reviewHtml || 'No bugs found!';
+                activeFile.fixedCode = data.fixed_code || code;
+
+                if (data.language) {
+                    document.getElementById('detectedLangBadge').innerText = data.language;
+                }
+
+                renderReviewAndFixed(activeFile);
+                renderHighlights();
+
+            } catch (err) {
+                document.getElementById('reviewContent').innerHTML = `<div style="color:var(--accent-red);">Error processing code. Check terminal.</div>`;
+            } finally {
+                loader.classList.remove('active');
+            }
+        }
+
+        function renderReviewAndFixed(file) {
+            document.getElementById('reviewContent').innerHTML = file.review || '<div style="color:var(--text-dim);">Line-by-line issues and problem review will appear here once analyzed.</div>';
+            const outEl = document.getElementById('fixedCodeOutput');
+            outEl.innerText = file.fixedCode || '# Corrected code will appear here...';
+            hljs.highlightElement(outEl);
+        }
+
+        function applyFixToEditor() {
+            const fixed = files[activeTabIndex].fixedCode;
+            if (!fixed) return;
+            document.getElementById('codeInput').value = fixed;
+            files[activeTabIndex].code = fixed;
+            files[activeTabIndex].errors = [];
+            onCodeInput();
+        }
+
+        function copyFixedCode() {
+            const text = document.getElementById('fixedCodeOutput').innerText;
+            navigator.clipboard.writeText(text);
+            alert("Fixed code copied to clipboard!");
+        }
+
+        // Initialize Workspace
+        renderTabs();
+    </script>
+</body>
+</html>
